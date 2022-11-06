@@ -13,8 +13,8 @@ class UserDaoTest {
     @Test
     @DisplayName("addAndGet 테스트")
     void addAndGet()throws SQLException {
-        UserDao userDao = new UserDao(new AWSConnectionMaker());
-        User insert = new User("2","kim","0000");
+        UserDao userDao = new UserDaoFactory().awsUserDao();
+        User insert = new User("3","kim","0000");
         userDao.add(insert);
         User select = userDao.findById(insert.getId());
         assertEquals(insert.getId(),select.getId());
