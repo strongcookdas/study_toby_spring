@@ -1,5 +1,6 @@
 package tody_spring;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import tody_spring.connection.ConnectionDB;
 import tody_spring.domain.User;
 
@@ -38,8 +39,35 @@ public class UserDao {
         p.setString(1, id);
 
         ResultSet r = p.executeQuery();
-        r.next();
-        User user = new User(r.getString("id"), r.getString("name"), r.getString("password"));
+        User user = null;
+        if(r.next()) {
+            user = new User(r.getString("id"), r.getString("name"), r.getString("password"));
+        }
+
+        r.close();
+        p.close();
+        connection.close();
+
+        if(user==null) throw new EmptyResultDataAccessException(1);
         return user;
+    }
+
+    public void deleteAll()throws SQLException{
+        Connection connection = this.connectionDB.makeConnection();
+        PreparedStatement p = connection.prepareStatement("delete from users");
+        p.executeUpdate();
+        p.close();
+        connection.close();
+    }
+
+    public int getCount()throws SQLException{
+        Connection connection = this.connectionDB.makeConnection();
+        PreparedStatement p = connection.prepareStatement(
+                "select count(*) as cnt from users"
+        );
+
+        ResultSet rs = p.executeQuery();
+        rs.next();
+        return rs.getInt(1);
     }
 }
